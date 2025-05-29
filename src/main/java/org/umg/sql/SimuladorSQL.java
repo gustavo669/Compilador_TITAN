@@ -20,19 +20,19 @@ public class SimuladorSQL {
             if (l.startsWith("create table")) {
                 String nombre = extraerNombreTabla(linea);
                 tablas.put(nombre, "estructura_simulada");
-                areaSalida.append("✅ Tabla '" + nombre + "' creada correctamente.\n");
+                areaSalida.append("Tabla '" + nombre + "' creada correctamente.\n");
             } else if (l.startsWith("insert into")) {
                 String nombre = extraerNombreTabla(linea);
-                areaSalida.append("✅ Insert realizado en tabla '" + nombre + "'.\n");
+                areaSalida.append("Insert realizado en tabla '" + nombre + "'.\n");
             } else if (l.startsWith("select")) {
                 String nombre = extraerNombreTabla(linea);
-                areaSalida.append("🔍 Simulación de SELECT sobre '" + nombre + "'.\n");
+                areaSalida.append("Simulación de SELECT sobre '" + nombre + "'.\n");
             } else if (l.startsWith("update")) {
                 String nombre = extraerNombreTabla(linea);
-                areaSalida.append("🔄 UPDATE simulado en tabla '" + nombre + "'.\n");
+                areaSalida.append("UPDATE simulado en tabla '" + nombre + "'.\n");
             } else if (l.startsWith("delete from")) {
                 String nombre = extraerNombreTabla(linea);
-                areaSalida.append("🗑️ DELETE simulado en tabla '" + nombre + "'.\n");
+                areaSalida.append("DELETE simulado en tabla '" + nombre + "'.\n");
             }
         }
     }

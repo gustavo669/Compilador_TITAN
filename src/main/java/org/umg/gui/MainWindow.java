@@ -1,5 +1,6 @@
 package org.umg.gui;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import org.umg.codegen.IntermediateCodeGenerator;
 import org.umg.codegen.ObjectCodeGenerator;
 import org.umg.codegen.Optimizer;
@@ -17,136 +18,280 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.List;
+import java.util.ArrayList;
 
-public class MainWindow extends javax.swing.JFrame {
+public class MainWindow extends JFrame {
 
-    private final JTextArea inputArea;
-    private final JTextArea outputTokens;
-    private final JTextArea outputErrorsLex;
-    private final JTextArea outputErrorsSint;
-    private final JTextArea outputErrorsSem;
-    private final JTextArea outputIntermedio;
-    private final JTextArea outputOptimizado;
-    private final JTextArea outputObjeto;
-    private final JTextArea outputLenguaje;
-    private final JButton btnAnalizar;
-    private final JButton btnCargarArchivo;
-    private final JTextArea outputSQL;
-    private final JButton btnExportar;
-
+    private JTextArea inputArea;
+    private JTextArea outputTokens;
+    private JTextArea outputErrorsLex;
+    private JTextArea outputErrorsSint;
+    private JTextArea outputErrorsSem;
+    private JTextArea outputIntermedio;
+    private JTextArea outputOptimizado;
+    private JTextArea outputObjeto;
+    private JTextArea outputLenguaje;
+    private JTextArea outputSQL;
+    private JButton btnAnalizar;
+    private JButton btnCargarArchivo;
+    private JButton btnExportar;
+    private JButton btnLimpiar;
+    private AnalysisResults analysisResults;
 
     public MainWindow() {
-        setTitle("TITAN - Compilador");
-        setSize(1200, 1000);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
-
-        inputArea = new JTextArea(10, 50);
-        outputTokens = new JTextArea(10, 30);
-        outputErrorsLex = new JTextArea(10, 30);
-        outputErrorsSint = new JTextArea(10, 30);
-        outputErrorsSem = new JTextArea(10, 30);
-        outputIntermedio = new JTextArea(10, 30);
-        outputOptimizado = new JTextArea(10, 30);
-        outputObjeto = new JTextArea(10, 30);
-        outputLenguaje = new JTextArea(10, 30);
-        btnAnalizar = new JButton("Analizar Código");
-        btnCargarArchivo = new JButton("Cargar Archivo .txt");
-
-
-        // Deshabilitar edición
-        outputTokens.setEditable(false);
-        outputErrorsLex.setEditable(false);
-        outputErrorsSint.setEditable(false);
-        outputErrorsSem.setEditable(false);
-        outputIntermedio.setEditable(false);
-        outputOptimizado.setEditable(false);
-        outputObjeto.setEditable(false);
-        outputLenguaje.setEditable(false);
-
-        // Panel superior
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setBorder(BorderFactory.createTitledBorder("Código Fuente"));
-        topPanel.add(new JScrollPane(inputArea), BorderLayout.CENTER);
-
-        // Panel central
-        JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new GridLayout(6, 2));
-        centerPanel.add(createPanel("Tokens Reconocidos", outputTokens));
-        centerPanel.add(createPanel("Errores Léxicos", outputErrorsLex));
-        centerPanel.add(createPanel("Errores Sintácticos", outputErrorsSint));
-        centerPanel.add(createPanel("Errores Semánticos", outputErrorsSem));
-        centerPanel.add(createPanel("Código Intermedio", outputIntermedio));
-        centerPanel.add(createPanel("Código Optimizado", outputOptimizado));
-        centerPanel.add(createPanel("Código Objeto", outputObjeto));
-        centerPanel.add(createPanel("Lenguaje Detectado", outputLenguaje));
-
-
-        outputSQL = new JTextArea(10, 30);
-        outputSQL.setEditable(false);
-        centerPanel.setLayout(new GridLayout(7, 2));
-        centerPanel.add(createPanel("Simulación SQL", outputSQL));
-
-        btnExportar = new JButton("Exportar Análisis");
-
-        // Panel inferior
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.add(btnAnalizar);
-        add(topPanel, BorderLayout.NORTH);
-        add(centerPanel, BorderLayout.CENTER);
-        add(bottomPanel, BorderLayout.SOUTH);
-
-        btnAnalizar.addActionListener(this::analizarCodigo);
-        bottomPanel.add(btnCargarArchivo);
-
-        btnCargarArchivo.addActionListener(this::cargarArchivo);
-
-        bottomPanel.add(btnExportar);
-        btnExportar.addActionListener(this::exportarAnalisis);
-
+        initializeComponents();
+        setupLayout();
+        setupEventHandlers();
+        configureWindow();
     }
 
-    private void cargarArchivo(ActionEvent e) {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Seleccionar archivo de código fuente (.txt)");
+    private void initializeComponents() {
+        inputArea = createTextArea(true, "");
+        outputTokens = createTextArea(false, "");
+        outputErrorsLex = createTextArea(false, "");
+        outputErrorsSint = createTextArea(false, "");
+        outputErrorsSem = createTextArea(false, "");
+        outputIntermedio = createTextArea(false, "");
+        outputOptimizado = createTextArea(false, "");
+        outputObjeto = createTextArea(false, "");
+        outputLenguaje = createTextArea(false, "");
+        outputSQL = createTextArea(false, "");
 
-        int resultado = fileChooser.showOpenDialog(this);
-        if (resultado == JFileChooser.APPROVE_OPTION) {
-            File archivo = fileChooser.getSelectedFile();
-            try (java.util.Scanner scanner = new java.util.Scanner(archivo)) {
-                StringBuilder contenido = new StringBuilder();
-                while (scanner.hasNextLine()) {
-                    contenido.append(scanner.nextLine()).append("\n");
-                }
-                inputArea.setText(contenido.toString());
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error al leer el archivo:\n" + ex.getMessage());
+        btnAnalizar = createButton("Analizar Código", "Ejecuta el análisis completo del código");
+        btnCargarArchivo = createButton("Cargar Archivo", "Carga un archivo de código fuente");
+        btnExportar = createButton("Exportar Reporte", "Exporta el análisis a HTML");
+        btnLimpiar = createButton("Limpiar Todo", "Limpia todas las áreas de texto");
+
+        analysisResults = new AnalysisResults();
+    }
+
+    /**
+     * configuración estándar
+     */
+    private JTextArea createTextArea(boolean editable, String placeholder) {
+        JTextArea area = new JTextArea();
+        area.setEditable(editable);
+        area.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
+        area.setBackground(editable ? new Color(191, 239, 243) : Color.white);
+        area.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        area.setForeground(new Color(33, 37, 41));
+        if (!placeholder.isEmpty()) {
+            area.setText(placeholder);
+            if (editable) {
+                area.setForeground(new Color(4, 5, 6));
             }
         }
+        return area;
     }
 
-    private JPanel createPanel(String title, JTextArea area) {
+    private JButton createButton(String text, String tooltip) {
+        JButton button = new JButton(text);
+        button.setToolTipText(tooltip);
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setPreferredSize(new Dimension(150, 40));
+        button.setBackground(new Color(0, 123, 255));
+        button.setForeground(Color.WHITE);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        button.setFocusPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(0, 86, 179));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(0, 123, 255));
+            }
+        });
+
+        return button;
+    }
+
+    /**
+     * ventana principal
+     */
+    private void configureWindow() {
+        setTitle("TITAN - Compilador");
+        setSize(1400, 1000);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+        getContentPane().setBackground(new Color(248, 249, 250));
+
+    }
+
+    /**
+     * layout de la interfaz
+     */
+    private void setupLayout() {
+        setLayout(new BorderLayout(15, 15));
+
+        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        mainPanel.setBackground(new Color(248, 249, 250));
+
+        JPanel topPanel = createSourceCodePanel();
+
+        JPanel centerPanel = createResultsPanel();
+
+        JPanel bottomPanel = createControlPanel();
+
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        add(mainPanel, BorderLayout.CENTER);
+    }
+
+    /**
+     * panel del código fuente
+     */
+    private JPanel createSourceCodePanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createTitledBorder(title));
-        panel.add(new JScrollPane(area), BorderLayout.CENTER);
+        panel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(108, 117, 125), 1),
+                "Código Fuente",
+                0, 0,
+                new Font("Segoe UI", Font.BOLD, 16),
+                new Color(52, 58, 64)
+        ));
+        panel.setPreferredSize(new Dimension(0, 220));
+        panel.setBackground(Color.WHITE);
+
+        JScrollPane scrollPane = new JScrollPane(inputArea);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
         return panel;
     }
 
-    private void ejecutarHTML(String codigoHTML) {
-        try {
-            File archivo = File.createTempFile("preview_", ".html");
-            archivo.deleteOnExit();
-            try (FileWriter writer = new FileWriter(archivo)) {
-                writer.write(codigoHTML);
-            }
-            Desktop.getDesktop().browse(archivo.toURI());
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error al abrir el navegador:\n" + ex.getMessage());
+    /**
+     * panel de resultados
+     */
+    private JPanel createResultsPanel() {
+        JPanel panel = new JPanel(new GridLayout(3, 3, 10, 10));
+        panel.setBackground(new Color(248, 249, 250));
+
+        String[] titles = {
+                "Tokens Reconocidos", "Errores Léxicos", "Errores Sintácticos",
+                "Errores Semánticos", "Código Intermedio", "Código Optimizado",
+                "Código Objeto", "Lenguaje Detectado", "Simulación SQL"
+        };
+        JTextArea[] areas = {
+                outputTokens, outputErrorsLex, outputErrorsSint,
+                outputErrorsSem, outputIntermedio, outputOptimizado,
+                outputObjeto, outputLenguaje, outputSQL
+        };
+
+        for (int i = 0; i < titles.length; i++) {
+            panel.add(createScrollablePanel(titles[i], areas[i]));
         }
+
+        return panel;
     }
 
-    private void analizarCodigo(ActionEvent e) {
-        // Limpiar áreas
+    private JPanel createControlPanel() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(222, 226, 230)),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+        panel.setBackground(Color.WHITE);
+
+        btnAnalizar.setBackground(new Color(40, 167, 69));
+        btnAnalizar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnAnalizar.setBackground(new Color(33, 136, 56));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnAnalizar.setBackground(new Color(40, 167, 69));
+            }
+        });
+
+        btnCargarArchivo.setBackground(new Color(23, 162, 184));
+        btnCargarArchivo.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnCargarArchivo.setBackground(new Color(19, 132, 150));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnCargarArchivo.setBackground(new Color(23, 162, 184));
+            }
+        });
+
+        btnExportar.setBackground(new Color(255, 193, 7));
+        btnExportar.setForeground(new Color(33, 37, 41));
+        btnExportar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnExportar.setBackground(new Color(227, 172, 6));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnExportar.setBackground(new Color(255, 193, 7));
+            }
+        });
+
+        btnLimpiar.setBackground(new Color(220, 53, 69));
+        btnLimpiar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnLimpiar.setBackground(new Color(200, 35, 51));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnLimpiar.setBackground(new Color(220, 53, 69));
+            }
+        });
+
+        panel.add(btnAnalizar);
+        panel.add(btnCargarArchivo);
+        panel.add(btnExportar);
+        panel.add(btnLimpiar);
+
+        return panel;
+    }
+
+
+    private JPanel createScrollablePanel(String title, JTextArea area) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
+                title,
+                0, 0,
+                new Font("Segoe UI", Font.BOLD, 13),
+                new Color(73, 80, 87)
+        ));
+        panel.setBackground(Color.WHITE);
+
+        JScrollPane scrollPane = new JScrollPane(area);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
+
+        panel.add(scrollPane, BorderLayout.CENTER);
+        return panel;
+    }
+
+
+    private void setupEventHandlers() {
+        btnAnalizar.addActionListener(this::performCompleteAnalysis);
+        btnCargarArchivo.addActionListener(this::loadSourceFile);
+        btnExportar.addActionListener(this::exportAnalysisReport);
+        btnLimpiar.addActionListener(this::clearAllAreas);
+    }
+
+
+    private void clearAllAreas(ActionEvent e) {
+        inputArea.setText("");
+        clearOutputAreas();
+        analysisResults.clear();
+    }
+
+
+    private void clearOutputAreas() {
         outputTokens.setText("");
         outputErrorsLex.setText("");
         outputErrorsSint.setText("");
@@ -155,137 +300,342 @@ public class MainWindow extends javax.swing.JFrame {
         outputOptimizado.setText("");
         outputObjeto.setText("");
         outputLenguaje.setText("");
-
-        // Código fuente actual
-        String codigoFuente = inputArea.getText();
-
-        // Detección de lenguaje
-        String lenguaje = LenguajeDetector.detectarLenguaje(codigoFuente);
-        outputLenguaje.setText("Lenguaje detectado: " + lenguaje);
-
-        // Sql Simulador
         outputSQL.setText("");
-        if (lenguaje.equals("T-SQL") || lenguaje.equals("PL/SQL")) {
-            SimuladorSQL simulador = new SimuladorSQL(outputSQL);
-            simulador.procesar(codigoFuente);
+    }
+
+
+    private void loadSourceFile(ActionEvent e) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Seleccionar archivo de código fuente");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            loadFileContent(selectedFile);
         }
+    }
 
-        // Análisis léxico
-        Lexer lexer = new Lexer();
-        lexer.analizar(codigoFuente);
 
-        for (Token t : lexer.getTokens()) {
-            outputTokens.append(t.toString() + "\n");
-        }
-
-        java.util.List<ErrorLSSL> erroresLex = lexer.getErrors();
-        if (erroresLex.isEmpty()) {
-            outputErrorsLex.setText("Sin errores léxicos.");
-        } else {
-            for (ErrorLSSL error : erroresLex) {
-                outputErrorsLex.append(error.toString() + "\n");            }
-        }
-
-        // Análisis sintáctico
-        Parser parser = new Parser(lexer.getTokens());
-        if (erroresLex.isEmpty()) {
-            parser.analizar();
-            java.util.List<ErrorLSSL> erroresSint = parser.getErrores();
-            if (erroresSint.isEmpty()) {
-                outputErrorsSint.setText("Sin errores sintácticos.");
-            } else {
-                for (ErrorLSSL error : erroresSint) {
-                    outputErrorsSint.append(error.toString() + "\n");                }
+    private void loadFileContent(File file) {
+        try (java.util.Scanner scanner = new java.util.Scanner(file)) {
+            StringBuilder content = new StringBuilder();
+            while (scanner.hasNextLine()) {
+                content.append(scanner.nextLine()).append("\n");
             }
-        } else {
-            outputErrorsSint.setText("Análisis sintáctico omitido por errores léxicos.");
+            inputArea.setText(content.toString());
+            showInfoMessage("Archivo cargado exitosamente: " + file.getName());
+        } catch (Exception ex) {
+            showErrorMessage("Error al cargar el archivo", ex);
         }
+    }
 
-        // Análisis semántico y demás
-        if (erroresLex.isEmpty() && parser.getErrores().isEmpty()) {
-            SemanticAnalyzer semantic = new SemanticAnalyzer(lexer.getTokens());
-            semantic.analizar();
-            List<ErrorLSSL> erroresSem = semantic.getErrores();
 
-            if (erroresSem.isEmpty()) {
-                outputErrorsSem.setText("Sin errores semánticos.");
+    private void performCompleteAnalysis(ActionEvent e) {
+        clearOutputAreas();
+        String sourceCode = inputArea.getText().trim();
 
-                IntermediateCodeGenerator generator = new IntermediateCodeGenerator(lexer.getTokens());
+        try {
+            // Detección de lenguaje
+            performLanguageDetection(sourceCode);
+
+            // Simulación SQL (si aplica)
+            performSQLSimulation(sourceCode);
+
+            // Análisis léxico
+            performLexicalAnalysis(sourceCode);
+
+            // Análisis sintáctico
+            performSyntacticAnalysis();
+
+            // Análisis semántico
+            performSemanticAnalysis();
+
+            // Generación de código (siempre se ejecuta)
+            performCodeGeneration(sourceCode);
+
+            // Detección y ejecución de HTML
+            handleHTMLExecution(sourceCode);
+
+        } catch (Exception ex) {
+            showErrorMessage("Error durante el análisis", ex);
+        }
+    }
+
+
+    private void performLanguageDetection(String sourceCode) {
+        String detectedLanguage = LenguajeDetector.detectarLenguaje(sourceCode);
+        analysisResults.detectedLanguage = detectedLanguage;
+        outputLenguaje.setText("Lenguaje detectado: " + detectedLanguage);
+    }
+
+
+    private void performSQLSimulation(String sourceCode) {
+        outputSQL.setText("");
+        if (analysisResults.detectedLanguage != null &&
+                (analysisResults.detectedLanguage.equals("T-SQL") ||
+                        analysisResults.detectedLanguage.equals("PL/SQL"))) {
+            SimuladorSQL simulator = new SimuladorSQL(outputSQL);
+            simulator.procesar(sourceCode);
+        }
+    }
+
+    private void performCodeGeneration(String sourceCode) {
+        try {
+            // Código intermedio
+            if (!analysisResults.tokens.isEmpty()) {
+                IntermediateCodeGenerator generator = new IntermediateCodeGenerator(analysisResults.tokens);
                 generator.generar();
-                String intermedio = generator.getCodigoIntermedio();
-                outputIntermedio.setText(intermedio);
-
-                Optimizer optimizer = new Optimizer();
-                optimizer.optimizar(intermedio);
-                String optimizado = optimizer.getCodigoOptimizado();
-                outputOptimizado.setText(optimizado);
-
-                ObjectCodeGenerator objGen = new ObjectCodeGenerator();
-                objGen.generarDesdeIntermedio(optimizado);
-                outputObjeto.setText(objGen.getCodigoObjeto());
-
-                // Detección HTML y ejecución
-                String codigoMin = codigoFuente.toLowerCase();
-                if (codigoMin.contains("<html") && codigoMin.contains("<body") && codigoMin.contains("</html>")) {
-                    int opcion = JOptionPane.showConfirmDialog(this, "Se detectó código HTML.\n¿Deseas ejecutarlo en el navegador?", "Ejecutar HTML", JOptionPane.YES_NO_OPTION);
-                    if (opcion == JOptionPane.YES_OPTION) {
-                        ejecutarHTML(codigoFuente);
-                    }
-                }
-
-
+                analysisResults.intermediateCode = generator.getCodigoIntermedio();
+                outputIntermedio.setText(analysisResults.intermediateCode);
             } else {
-                for (ErrorLSSL error : erroresSem) {
-                    outputErrorsSem.append(error.toString() + "\n");}
-                outputIntermedio.setText("Código intermedio omitido por errores semánticos.");
-                outputOptimizado.setText("Optimización omitida por errores semánticos.");
-                outputObjeto.setText("Código objeto omitido por errores semánticos.");
+                analysisResults.intermediateCode = "// Código intermedio generado desde código fuente\n" +
+                        "// (Generado sin análisis léxico completo)\n" + sourceCode;
+                outputIntermedio.setText(analysisResults.intermediateCode);
             }
+
+            // Código optimizado
+            Optimizer optimizer = new Optimizer();
+            optimizer.optimizar(analysisResults.intermediateCode);
+            analysisResults.optimizedCode = optimizer.getCodigoOptimizado();
+            outputOptimizado.setText(analysisResults.optimizedCode);
+
+            // Código objeto
+            ObjectCodeGenerator objectGenerator = new ObjectCodeGenerator();
+            objectGenerator.generarDesdeIntermedio(analysisResults.optimizedCode);
+            analysisResults.objectCode = objectGenerator.getCodigoObjeto();
+            outputObjeto.setText(analysisResults.objectCode);
+
+        } catch (Exception ex) {
+            outputIntermedio.setText("Error en generación de código intermedio: " + ex.getMessage());
+            outputOptimizado.setText("Error en optimización: " + ex.getMessage());
+            outputObjeto.setText("Error en generación de código objeto: " + ex.getMessage());
+        }
+    }
+
+
+
+    private void performLexicalAnalysis(String sourceCode) {
+        Lexer lexer = new Lexer();
+        lexer.analizar(sourceCode);
+
+        analysisResults.tokens = lexer.getTokens();
+        analysisResults.lexicalErrors = lexer.getErrors();
+
+        // Mostrar tokens
+        StringBuilder tokensOutput = new StringBuilder();
+        for (Token token : analysisResults.tokens) {
+            tokensOutput.append(token.toString()).append("\n");
+        }
+        outputTokens.setText(tokensOutput.toString());
+
+        // Mostrar errores léxicos
+        displayErrors(analysisResults.lexicalErrors, outputErrorsLex, "Sin errores léxicos.");
+    }
+
+
+    private void performSyntacticAnalysis() {
+        if (analysisResults.tokens.isEmpty()) {
+            outputErrorsSint.setText("No hay tokens para analizar sintácticamente.");
+            return;
+        }
+
+        Parser parser = new Parser(analysisResults.tokens);
+        parser.analizar();
+        analysisResults.syntacticErrors = parser.getErrores();
+
+        displayErrors(analysisResults.syntacticErrors, outputErrorsSint, "Sin errores sintácticos.");
+    }
+
+
+    private void performSemanticAnalysis() {
+        if (analysisResults.tokens.isEmpty()) {
+            outputErrorsSem.setText("No hay tokens para analizar semánticamente.");
+            return;
+        }
+
+        SemanticAnalyzer semantic = new SemanticAnalyzer(analysisResults.tokens);
+        semantic.analizar();
+        analysisResults.semanticErrors = semantic.getErrores();
+
+        displayErrors(analysisResults.semanticErrors, outputErrorsSem, "Sin errores semánticos.");
+    }
+
+    /**
+     * Maneja la detección y ejecución de código HTML
+     */
+    private void handleHTMLExecution(String sourceCode) {
+        String lowerCode = sourceCode.toLowerCase();
+        if (lowerCode.contains("<html") && lowerCode.contains("<body") && lowerCode.contains("</html>")) {
+            int option = JOptionPane.showConfirmDialog(
+                    this,
+                    "Se detectó código HTML.\n¿Deseas ejecutarlo en el navegador?",
+                    "Ejecutar HTML",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (option == JOptionPane.YES_OPTION) {
+                executeHTML(sourceCode);
+            }
+        }
+    }
+
+
+    private void executeHTML(String htmlCode) {
+        try {
+            File tempFile = File.createTempFile("titan_preview_", ".html");
+            tempFile.deleteOnExit();
+
+            try (FileWriter writer = new FileWriter(tempFile)) {
+                writer.write(htmlCode);
+            }
+
+            Desktop.getDesktop().browse(tempFile.toURI());
+        } catch (Exception ex) {
+            showErrorMessage("Error al abrir el navegador", ex);
+        }
+    }
+
+
+    private void displayErrors(List<ErrorLSSL> errors, JTextArea outputArea, String noErrorsMessage) {
+        if (errors.isEmpty()) {
+            outputArea.setText(noErrorsMessage);
         } else {
-            outputErrorsSem.setText("Análisis semántico omitido por errores previos.");
-            outputIntermedio.setText("Código intermedio omitido por errores previos.");
-            outputOptimizado.setText("Optimización omitida por errores previos.");
-            outputObjeto.setText("Código objeto omitido por errores previos.");
-        }
-    }
-
-    private void exportarAnalisis(ActionEvent e) {
-        JFileChooser chooser = new JFileChooser();
-        chooser.setDialogTitle("Guardar análisis como HTML");
-        chooser.setSelectedFile(new File("analisis.html"));
-
-        int resultado = chooser.showSaveDialog(this);
-        if (resultado == JFileChooser.APPROVE_OPTION) {
-            File archivo = chooser.getSelectedFile();
-            try (FileWriter writer = new FileWriter(archivo)) {
-                writer.write("<html><head><title>Reporte de Análisis</title></head><body>");
-                writer.write("<h1>Reporte del Compilador TITAN</h1>");
-                writer.write(bloqueHTML("Código Fuente", inputArea.getText()));
-                writer.write(bloqueHTML("Lenguaje Detectado", outputLenguaje.getText()));
-                writer.write(bloqueHTML("Tokens Reconocidos", outputTokens.getText()));
-                writer.write(bloqueHTML("Errores Léxicos", outputErrorsLex.getText()));
-                writer.write(bloqueHTML("Errores Sintácticos", outputErrorsSint.getText()));
-                writer.write(bloqueHTML("Errores Semánticos", outputErrorsSem.getText()));
-                writer.write(bloqueHTML("Código Intermedio", outputIntermedio.getText()));
-                writer.write(bloqueHTML("Código Optimizado", outputOptimizado.getText()));
-                writer.write(bloqueHTML("Código Objeto", outputObjeto.getText()));
-                writer.write(bloqueHTML("Simulación SQL", outputSQL.getText()));
-                writer.write("</body></html>");
-                JOptionPane.showMessageDialog(this, "Análisis exportado exitosamente a:\n" + archivo.getAbsolutePath());
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error al exportar:\n" + ex.getMessage());
+            StringBuilder errorOutput = new StringBuilder();
+            for (ErrorLSSL error : errors) {
+                errorOutput.append(error.toString()).append("\n");
             }
+            outputArea.setText(errorOutput.toString());
         }
     }
 
+    /**
+     * Exporta el reporte de análisis a HTML
+     */
+    private void exportAnalysisReport(ActionEvent e) {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Guardar reporte de análisis");
+        chooser.setSelectedFile(new File("reporte_titan.html"));
 
-    private String bloqueHTML(String titulo, String contenido) {
-        return "<h2>" + titulo + "</h2><pre style='background:#f0f0f0;padding:10px;border:1px solid #ccc;'>" +
-                contenido.replace("<", "&lt;").replace(">", "&gt;") +
-                "</pre>";
+        int result = chooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = chooser.getSelectedFile();
+            generateHTMLReport(file);
+        }
     }
 
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(() -> new MainWindow().setVisible(true));
+    /**
+     * Genera el reporte HTML
+     */
+    private void generateHTMLReport(File file) {
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(buildHTMLReport());
+            showInfoMessage("Reporte exportado exitosamente a:\n" + file.getAbsolutePath());
+        } catch (Exception ex) {
+            showErrorMessage("Error al exportar el reporte", ex);
+        }
+    }
+
+    /**
+     * contenido del reporte HTML
+     */
+    private String buildHTMLReport() {
+        StringBuilder html = new StringBuilder();
+        html.append("<!DOCTYPE html>\n");
+        html.append("<html><head>");
+        html.append("<title>Reporte de Análisis - TITAN</title>");
+        html.append("<meta charset='UTF-8'>");
+        html.append("<style>");
+        html.append("body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }");
+        html.append(".container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }");
+        html.append("h1 { color: #2c3e50; text-align: center; font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }");
+        html.append("h2 { color: #34495e; border-left: 4px solid #3498db; padding-left: 15px; font-size: 1.4em; margin-top: 25px; }");
+        html.append("pre { background: linear-gradient(145deg, #f8f9fa, #e9ecef); padding: 20px; border: none; border-radius: 10px; overflow-x: auto; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; line-height: 1.5; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }");
+        html.append(".error { color: #e74c3c; font-weight: bold; }");
+        html.append(".success { color: #27ae60; font-weight: bold; }");
+        html.append(".header { text-align: center; margin-bottom: 30px; }");
+        html.append(".date { color: #7f8c8d; font-style: italic; }");
+        html.append(".section { margin: 20px 0; }");
+        html.append("</style>");
+        html.append("</head><body>");
+
+        html.append("<div class='container'>");
+        html.append("<div class='header'>");
+        html.append("<h1>🚀 Reporte del Compilador TITAN</h1>");
+        html.append("<p class='date'><strong>Fecha de generación:</strong> ").append(new java.util.Date()).append("</p>");
+        html.append("</div>");
+
+        html.append(createHTMLSection("📝 Código Fuente", inputArea.getText()));
+        html.append(createHTMLSection("🌐 Lenguaje Detectado", outputLenguaje.getText()));
+        html.append(createHTMLSection("🔤 Tokens Reconocidos", outputTokens.getText()));
+        html.append(createHTMLSection("❌ Errores Léxicos", outputErrorsLex.getText()));
+        html.append(createHTMLSection("⚠️ Errores Sintácticos", outputErrorsSint.getText()));
+        html.append(createHTMLSection("🔍 Errores Semánticos", outputErrorsSem.getText()));
+        html.append(createHTMLSection("⚙️ Código Intermedio", outputIntermedio.getText()));
+        html.append(createHTMLSection("✨ Código Optimizado", outputOptimizado.getText()));
+        html.append(createHTMLSection("📦 Código Objeto", outputObjeto.getText()));
+        html.append(createHTMLSection("🗄️ Simulación SQL", outputSQL.getText()));
+
+        html.append("</div>");
+        html.append("</body></html>");
+        return html.toString();
+    }
+
+    private String createHTMLSection(String title, String content) {
+        String escapedContent = content.replace("<", "&lt;").replace(">", "&gt;");
+        return "<div class='section'><h2>" + title + "</h2>" +
+                "<pre>" + escapedContent + "</pre></div>";
+    }
+
+
+    private void showInfoMessage(String message) {
+        JOptionPane.showMessageDialog(this, message, "Información", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+
+    private void showWarningMessage(String message) {
+        JOptionPane.showMessageDialog(this, message, "Advertencia", JOptionPane.WARNING_MESSAGE);
+    }
+
+
+    private void showErrorMessage(String message, Exception ex) {
+        String fullMessage = message + ":\n" + ex.getMessage();
+        JOptionPane.showMessageDialog(this, fullMessage, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    /**
+     * Clase interna para almacenar los resultados del análisis
+     */
+    private static class AnalysisResults {
+        String detectedLanguage;
+        List<Token> tokens = new ArrayList<>();
+        List<ErrorLSSL> lexicalErrors = new ArrayList<>();
+        List<ErrorLSSL> syntacticErrors = new ArrayList<>();
+        List<ErrorLSSL> semanticErrors = new ArrayList<>();
+        String intermediateCode = "";
+        String optimizedCode = "";
+        String objectCode = "";
+
+        void clear() {
+            detectedLanguage = null;
+            tokens.clear();
+            lexicalErrors.clear();
+            syntacticErrors.clear();
+            semanticErrors.clear();
+            intermediateCode = "";
+            optimizedCode = "";
+            objectCode = "";
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            FlatLightLaf.setup();
+            UIManager.put("Button.arc", 10);
+            UIManager.put("Component.arc", 8);
+
+            new MainWindow().setVisible(true);
+        });
     }
 }

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.umg.gui.MainWindow">
+  <grid id="27dc6" layout-manager="GridLayoutManager" row-count="13" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
+    <constraints>
+      <xy x="20" y="20" width="605" height="777"/>
+    </constraints>
+    <properties>
+      <background color="-7283743"/>
+      <font name="Bungasai" size="22"/>
+      <foreground color="-2104859"/>
+    </properties>
+    <border type="none"/>
+    <children>
+      <component id="6116f" class="javax.swing.JButton" binding="btnAnalizar">
+        <constraints>
+          <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <alignmentY value="0.0"/>
+          <background color="-15605283"/>
+          <focusable value="false"/>
+          <font name="Hughs" size="28"/>
+          <foreground color="-16513786"/>
+          <horizontalTextPosition value="0"/>
+          <text value="Analizar Codigo"/>
+        </properties>
+      </component>
+      <component id="b1313" class="javax.swing.JTextArea" binding="outputTokens">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="50"/>
+          </grid>
+        </constraints>
+        <properties>
+          <font name="Dosis SemiBold" size="18" style="2"/>
+          <text value=""/>
+        </properties>
+      </component>
+      <component id="330c1" class="javax.swing.JTextArea" binding="inputArea">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="50"/>
+          </grid>
+        </constraints>
+        <properties>
+          <font name="Dosis SemiBold" size="18" style="2"/>
+        </properties>
+      </component>
+      <component id="9ca2a" class="javax.swing.JTextArea" binding="outputErrorsLex">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="50"/>
+          </grid>
+        </constraints>
+        <properties>
+          <font name="Dosis SemiBold" size="18" style="2"/>
+        </properties>
+      </component>
+      <component id="72876" class="javax.swing.JTextArea" binding="outputErrorsSint">
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="50"/>
+          </grid>
+        </constraints>
+        <properties>
+          <font name="Dosis SemiBold" size="18" style="2"/>
+          <text value=""/>
+        </properties>
+      </component>
+      <component id="f9c8e" class="javax.swing.JTextArea" binding="outputErrorsSem">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="50"/>
+          </grid>
+        </constraints>
+        <properties>
+          <font name="Dosis SemiBold" size="18" style="2"/>
+        </properties>
+      </component>
+      <component id="3a27e" class="javax.swing.JTextArea" binding="outputIntermedio">
+        <constraints>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="50"/>
+          </grid>
+        </constraints>
+        <properties>
+          <font name="Dosis SemiBold" size="18" style="2"/>
+          <text value=""/>
+        </properties>
+      </component>
+      <component id="bca3e" class="javax.swing.JTextArea" binding="outputObjeto">
+        <constraints>
+          <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="50"/>
+          </grid>
+        </constraints>
+        <properties>
+          <font name="Dosis SemiBold" size="18" style="2"/>
+          <text value=""/>
+        </properties>
+      </component>
+      <component id="425d8" class="javax.swing.JTextArea" binding="outputLenguaje">
+        <constraints>
+          <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="50"/>
+          </grid>
+        </constraints>
+        <properties>
+          <font name="Dosis SemiBold" size="18" style="2"/>
+          <text value=""/>
+        </properties>
+      </component>
+      <component id="529b3" class="javax.swing.JTextArea" binding="outputSQL">
+        <constraints>
+          <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="50"/>
+          </grid>
+        </constraints>
+        <properties>
+          <font name="Dosis SemiBold" size="18" style="2"/>
+        </properties>
+      </component>
+      <component id="4174f" class="javax.swing.JButton" binding="btnCargarArchivo">
+        <constraints>
+          <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <alignmentY value="0.0"/>
+          <background color="-15605283"/>
+          <focusable value="false"/>
+          <font name="Hughs" size="28"/>
+          <foreground color="-16513786"/>
+          <horizontalTextPosition value="0"/>
+          <text value="Cargar Archivo"/>
+        </properties>
+      </component>
+      <component id="f3624" class="javax.swing.JButton" binding="btnExportar">
+        <constraints>
+          <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <alignmentY value="0.0"/>
+          <background color="-15605283"/>
+          <focusable value="false"/>
+          <font name="Hughs" size="28"/>
+          <foreground color="-16513786"/>
+          <horizontalTextPosition value="0"/>
+          <text value="Exportar Analisis"/>
+        </properties>
+      </component>
+      <component id="6ba5a" class="javax.swing.JTextArea" binding="outputOptimizado">
+        <constraints>
+          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="50"/>
+          </grid>
+        </constraints>
+        <properties>
+          <font name="Dosis SemiBold" size="18" style="2"/>
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>

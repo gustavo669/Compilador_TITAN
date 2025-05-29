@@ -1,10 +1,15 @@
 package org.umg.model;
 
+/**
+ * Clase que representa un error en el análisis del compilador.
+ * Puede ser léxico, sintáctico o semántico.
+ */
 public class ErrorLSSL {
-    private int type; // 1: léxico, 2: sintáctico, 3: semántico
-    private String message;
-    private int line;
-    private int column;
+
+    private final int type; // 1: léxico, 2: sintáctico, 3: semántico
+    private final String message;
+    private final int line;
+    private final int column;
 
     public ErrorLSSL(int type, String message, int line, int column) {
         this.type = type;
@@ -13,11 +18,26 @@ public class ErrorLSSL {
         this.column = column;
     }
 
-    public int getType() { return type; }
-    public String getMessage() { return message; }
-    public int getLine() { return line; }
-    public int getColumn() { return column; }
+    public int getType() {
+        return type;
+    }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public int getLine() {
+        return line;
+    }
+
+    public int getColumn() {
+        return column;
+    }
+
+    /**
+     * Devuelve una representación en texto del error,
+     * incluyendo el tipo, mensaje y su ubicación.
+     */
     @Override
     public String toString() {
         String tipo = switch (type) {
@@ -26,6 +46,6 @@ public class ErrorLSSL {
             case 3 -> "SEMÁNTICO";
             default -> "DESCONOCIDO";
         };
-        return "Error " + tipo + ": " + message + " (línea: " + line + ", col: " + column + ")";
+        return "Error " + tipo + ": " + message + " (línea: " + line + ", columna: " + column + ")";
     }
 }
