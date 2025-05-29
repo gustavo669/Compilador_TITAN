@@ -7,10 +7,6 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Analizador léxico del compilador TITAN.
- * Detecta tokens como identificadores, operadores, números, delimitadores y errores.
- */
 public class Lexer {
 
     private final ArrayList<Token> tokens = new ArrayList<>();
@@ -36,10 +32,6 @@ public class Lexer {
         this.pattern = Pattern.compile(fullPattern);
     }
 
-    /**
-     * Ejecuta el análisis léxico sobre el código fuente.
-     * @param codigoFuente Código ingresado por el usuario
-     */
     public void analizar(String codigoFuente) {
         tokens.clear();
         errors.clear();
@@ -62,9 +54,6 @@ public class Lexer {
         }
     }
 
-    /**
-     * Determina el tipo de token basado en los grupos nombrados del patrón.
-     */
     private String getTipoToken(Matcher matcher) {
         for (String name : new String[]{
                 "NUMERO", "REAL", "ID", "SUMA", "RESTA", "MULTIPLICACION", "DIVISION", "ASIGNACION", "PUNTOCOMA"}) {
@@ -73,11 +62,7 @@ public class Lexer {
         return null;
     }
 
-    /**
-     * Clasifica el token según su tipo y valor.
-     * @param lexema Valor del token
-     * @param tipo Tipo detectado por regex
-     */
+
     private String clasificar(String lexema, String tipo) {
         return switch (tipo) {
             case "ID" -> esPalabraReservada(lexema) ? "Palabra Reservada" : "Identificador";
@@ -88,9 +73,6 @@ public class Lexer {
         };
     }
 
-    /**
-     * Determina si un lexema es una palabra reservada del lenguaje.
-     */
     private boolean esPalabraReservada(String lexema) {
         return switch (lexema.toLowerCase()) {
             case "int", "float", "while", "if", "else", "for", "return", "void", "main" -> true;

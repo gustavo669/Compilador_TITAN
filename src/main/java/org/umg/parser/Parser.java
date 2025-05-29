@@ -6,11 +6,6 @@ import org.umg.model.ErrorLSSL;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Analizador sintáctico que verifica declaraciones válidas del tipo:
- * int x;
- * float y;
- */
 public class Parser {
 
     private final List<Token> tokens;
@@ -21,9 +16,6 @@ public class Parser {
         this.tokens = tokens;
     }
 
-    /**
-     * Método principal que recorre la lista de tokens y aplica análisis sintáctico.
-     */
     public void analizar() {
         while (index < tokens.size()) {
             if (!declaracion()) {
@@ -36,10 +28,6 @@ public class Parser {
         }
     }
 
-    /**
-     * Reconoce una declaración válida del tipo: int x;
-     * @return true si la declaración es válida
-     */
     private boolean declaracion() {
         if (match("ID")) {
             Token tipoToken = tokens.get(index - 1);
@@ -58,18 +46,13 @@ public class Parser {
                     return false;
                 }
             } else {
-                index--; // no era un tipo válido, revertir avance
+                index--;
                 return false;
             }
         }
         return false;
     }
 
-    /**
-     * Intenta hacer match con el tipo de token actual.
-     * @param tipoEsperado Tipo de token esperado
-     * @return true si hay coincidencia
-     */
     private boolean match(String tipoEsperado) {
         if (index < tokens.size() && tokens.get(index).getType().equals(tipoEsperado)) {
             index++;
@@ -78,9 +61,6 @@ public class Parser {
         return false;
     }
 
-    /**
-     * Agrega un error con la ubicación del token actual.
-     */
     private void addError(String mensaje) {
         if (index < tokens.size()) {
             Token t = tokens.get(index);
@@ -88,9 +68,6 @@ public class Parser {
         }
     }
 
-    /**
-     * Devuelve la lista de errores encontrados.
-     */
     public List<ErrorLSSL> getErrores() {
         return errores;
     }

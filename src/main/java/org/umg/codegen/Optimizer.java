@@ -3,18 +3,10 @@ package org.umg.codegen;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Optimiza el código intermedio aplicando reglas algebraicas simples.
- * Ej: x = x + 0 → x = x
- */
 public class Optimizer {
 
     private final List<String> optimizado = new ArrayList<>();
 
-    /**
-     * Recibe el código intermedio y aplica reglas de optimización.
-     * @param codigoIntermedio Código intermedio en texto plano
-     */
     public void optimizar(String codigoIntermedio) {
         optimizado.clear();
         String[] lineas = codigoIntermedio.split("\\n");
@@ -61,10 +53,6 @@ public class Optimizer {
         }
     }
 
-    /**
-     * Devuelve el código optimizado generado.
-     * @return Código como texto
-     */
     public String getCodigoOptimizado() {
         return String.join("\n", optimizado);
     }

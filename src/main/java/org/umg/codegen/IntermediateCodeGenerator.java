@@ -5,10 +5,6 @@ import org.umg.model.Token;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Generador de código intermedio tipo tripletas (T1 = a + b).
- * Interpreta instrucciones del tipo: a = b + c * d;
- */
 public class IntermediateCodeGenerator {
 
     private final List<Token> tokens;
@@ -20,9 +16,6 @@ public class IntermediateCodeGenerator {
         this.tokens = tokens;
     }
 
-    /**
-     * Método principal para iniciar la generación del código intermedio.
-     */
     public void generar() {
         while (index < tokens.size()) {
             // Detectar patrón: ID = expresión ;
@@ -37,20 +30,16 @@ public class IntermediateCodeGenerator {
         }
     }
 
-    /**
-     * Genera código intermedio para una expresión aritmética simple o compuesta.
-     * @param destino Variable que recibirá el resultado (ej. "x" en x = a + b)
-     */
+
     private void generarExpresion(String destino) {
         List<String> expr = new ArrayList<>();
 
-        // Recolectar todos los lexemas hasta el ;
         while (index < tokens.size() && !tokens.get(index).getType().equals("PUNTOCOMA")) {
             expr.add(tokens.get(index).getLexeme());
             index++;
         }
 
-        match("PUNTOCOMA"); // Consumir el ;
+        match("PUNTOCOMA");
 
         if (expr.isEmpty()) return;
 
@@ -70,9 +59,6 @@ public class IntermediateCodeGenerator {
         }
     }
 
-    /**
-     * Verifica si el token actual coincide con el tipo esperado y avanza el índice.
-     */
     private boolean match(String tipo) {
         if (index < tokens.size() && tokens.get(index).getType().equals(tipo)) {
             index++;
@@ -81,16 +67,10 @@ public class IntermediateCodeGenerator {
         return false;
     }
 
-    /**
-     * Devuelve el token en la posición dada o null si está fuera de rango.
-     */
     private Token getToken(int i) {
         return (i >= 0 && i < tokens.size()) ? tokens.get(i) : null;
     }
 
-    /**
-     * Devuelve el código intermedio generado.
-     */
     public String getCodigoIntermedio() {
         return intermedio.toString();
     }

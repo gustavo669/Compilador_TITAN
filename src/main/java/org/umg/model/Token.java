@@ -1,9 +1,5 @@
 package org.umg.model;
 
-/**
- * Representa un token generado por el analizador léxico.
- * Incluye información del lexema, tipo, posición y clasificación.
- */
 public class Token {
 
     private final String lexeme;         // Valor textual del token (ej: "x", "5", "+")
@@ -40,9 +36,6 @@ public class Token {
         return clasificacion;
     }
 
-    /**
-     * Devuelve una descripción completa del token, útil para la vista en interfaz.
-     */
     @Override
     public String toString() {
         return "Lexema: " + lexeme +

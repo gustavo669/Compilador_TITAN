@@ -1,9 +1,5 @@
 package org.umg.model;
 
-/**
- * Clase que representa un error en el análisis del compilador.
- * Puede ser léxico, sintáctico o semántico.
- */
 public class ErrorLSSL {
 
     private final int type; // 1: léxico, 2: sintáctico, 3: semántico
@@ -34,10 +30,6 @@ public class ErrorLSSL {
         return column;
     }
 
-    /**
-     * Devuelve una representación en texto del error,
-     * incluyendo el tipo, mensaje y su ubicación.
-     */
     @Override
     public String toString() {
         String tipo = switch (type) {
