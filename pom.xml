@@ -16,26 +16,6 @@
     </properties>
 
     <dependencies>
-        <!-- Swing está en el JDK, no necesitas declarar nada extra -->
-        <!-- Dependencias futuras, por si usas JavaFX o ANTLR -->
-
-        <!-- JavaFX (si decides usarlo más adelante) -->
-        <!--
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>20</version>
-        </dependency>
-        -->
-
-        <!-- ANTLR para análisis léxico/sintáctico si lo deseas usar después -->
-        <!--
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr4-runtime</artifactId>
-            <version>4.13.1</version>
-        </dependency>
-        -->
 
         <dependency>
             <groupId>com.formdev</groupId>
@@ -43,12 +23,10 @@
             <version>3.4.1</version>
         </dependency>
 
-
     </dependencies>
 
     <build>
         <plugins>
-            <!-- Plugin para compilar con Java 22 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
