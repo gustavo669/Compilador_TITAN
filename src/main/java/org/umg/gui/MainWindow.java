@@ -65,9 +65,7 @@ public class MainWindow extends JFrame {
         analysisResults = new AnalysisResults();
     }
 
-    /**
-     * configuración estándar
-     */
+    //Configuración estándar
     private JTextArea createTextArea(boolean editable, String placeholder) {
         JTextArea area = new JTextArea();
         area.setEditable(editable);
@@ -109,9 +107,7 @@ public class MainWindow extends JFrame {
         return button;
     }
 
-    /**
-     * ventana principal
-     */
+    //Ventana Principal
     private void configureWindow() {
         setTitle("TITAN - Compilador");
         setSize(1400, 1000);
@@ -119,13 +115,11 @@ public class MainWindow extends JFrame {
         setLocationRelativeTo(null);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-        getContentPane().setBackground(new Color(248, 249, 250));
+        getContentPane().setBackground(new Color(255, 255, 255));
 
     }
 
-    /**
-     * layout de la interfaz
-     */
+    //Layout
     private void setupLayout() {
         setLayout(new BorderLayout(15, 15));
 
@@ -146,9 +140,7 @@ public class MainWindow extends JFrame {
         add(mainPanel, BorderLayout.CENTER);
     }
 
-    /**
-     * panel del código fuente
-     */
+    //Panel de codigo fuente
     private JPanel createSourceCodePanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder(
@@ -170,9 +162,7 @@ public class MainWindow extends JFrame {
         return panel;
     }
 
-    /**
-     * panel de resultados
-     */
+    //Panel de Resultados
     private JPanel createResultsPanel() {
         JPanel panel = new JPanel(new GridLayout(3, 3, 10, 10));
         panel.setBackground(new Color(248, 249, 250));
@@ -195,6 +185,7 @@ public class MainWindow extends JFrame {
         return panel;
     }
 
+    //Panel Central
     private JPanel createControlPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
         panel.setBorder(BorderFactory.createCompoundBorder(
@@ -252,7 +243,6 @@ public class MainWindow extends JFrame {
         return panel;
     }
 
-
     private JPanel createScrollablePanel(String title, JTextArea area) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder(
@@ -275,7 +265,6 @@ public class MainWindow extends JFrame {
         return panel;
     }
 
-
     private void setupEventHandlers() {
         btnAnalizar.addActionListener(this::performCompleteAnalysis);
         btnCargarArchivo.addActionListener(this::loadSourceFile);
@@ -283,13 +272,11 @@ public class MainWindow extends JFrame {
         btnLimpiar.addActionListener(this::clearAllAreas);
     }
 
-
     private void clearAllAreas(ActionEvent e) {
         inputArea.setText("");
         clearOutputAreas();
         analysisResults.clear();
     }
-
 
     private void clearOutputAreas() {
         outputTokens.setText("");
@@ -303,7 +290,6 @@ public class MainWindow extends JFrame {
         outputSQL.setText("");
     }
 
-
     private void loadSourceFile(ActionEvent e) {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Seleccionar archivo de código fuente");
@@ -315,7 +301,6 @@ public class MainWindow extends JFrame {
             loadFileContent(selectedFile);
         }
     }
-
 
     private void loadFileContent(File file) {
         try (java.util.Scanner scanner = new java.util.Scanner(file)) {
@@ -329,7 +314,6 @@ public class MainWindow extends JFrame {
             showErrorMessage("Error al cargar el archivo", ex);
         }
     }
-
 
     private void performCompleteAnalysis(ActionEvent e) {
         clearOutputAreas();
@@ -362,13 +346,11 @@ public class MainWindow extends JFrame {
         }
     }
 
-
     private void performLanguageDetection(String sourceCode) {
         String detectedLanguage = LenguajeDetector.detectarLenguaje(sourceCode);
         analysisResults.detectedLanguage = detectedLanguage;
         outputLenguaje.setText("Lenguaje detectado: " + detectedLanguage);
     }
-
 
     private void performSQLSimulation(String sourceCode) {
         outputSQL.setText("");
@@ -387,10 +369,6 @@ public class MainWindow extends JFrame {
                 IntermediateCodeGenerator generator = new IntermediateCodeGenerator(analysisResults.tokens);
                 generator.generar();
                 analysisResults.intermediateCode = generator.getCodigoIntermedio();
-                outputIntermedio.setText(analysisResults.intermediateCode);
-            } else {
-                analysisResults.intermediateCode = "// Código intermedio generado desde código fuente\n" +
-                        "// (Generado sin análisis léxico completo)\n" + sourceCode;
                 outputIntermedio.setText(analysisResults.intermediateCode);
             }
 
@@ -413,30 +391,30 @@ public class MainWindow extends JFrame {
         }
     }
 
-
-
     private void performLexicalAnalysis(String sourceCode) {
+        if (sourceCode == null || sourceCode.isEmpty()) {
+            outputErrorsLex.setText("No hay código fuente para analizar léxicamente.");
+            return;
+        }
+
         Lexer lexer = new Lexer();
         lexer.analizar(sourceCode);
 
         analysisResults.tokens = lexer.getTokens();
         analysisResults.lexicalErrors = lexer.getErrors();
 
-        // Mostrar tokens
         StringBuilder tokensOutput = new StringBuilder();
         for (Token token : analysisResults.tokens) {
             tokensOutput.append(token.toString()).append("\n");
         }
         outputTokens.setText(tokensOutput.toString());
 
-        // Mostrar errores léxicos
         displayErrors(analysisResults.lexicalErrors, outputErrorsLex, "Sin errores léxicos.");
     }
 
-
     private void performSyntacticAnalysis() {
         if (analysisResults.tokens.isEmpty()) {
-            outputErrorsSint.setText("No hay tokens para analizar sintácticamente.");
+            outputErrorsSint.setText("No hay código fuente para analizar sintácticamente.");
             return;
         }
 
@@ -447,10 +425,9 @@ public class MainWindow extends JFrame {
         displayErrors(analysisResults.syntacticErrors, outputErrorsSint, "Sin errores sintácticos.");
     }
 
-
     private void performSemanticAnalysis() {
         if (analysisResults.tokens.isEmpty()) {
-            outputErrorsSem.setText("No hay tokens para analizar semánticamente.");
+            outputErrorsSem.setText("No hay código fuente para analizar semánticamente.");
             return;
         }
 
@@ -461,9 +438,6 @@ public class MainWindow extends JFrame {
         displayErrors(analysisResults.semanticErrors, outputErrorsSem, "Sin errores semánticos.");
     }
 
-    /**
-     * Maneja la detección y ejecución de código HTML
-     */
     private void handleHTMLExecution(String sourceCode) {
         String lowerCode = sourceCode.toLowerCase();
         if (lowerCode.contains("<html") && lowerCode.contains("<body") && lowerCode.contains("</html>")) {
@@ -481,7 +455,6 @@ public class MainWindow extends JFrame {
         }
     }
 
-
     private void executeHTML(String htmlCode) {
         try {
             File tempFile = File.createTempFile("titan_preview_", ".html");
@@ -497,7 +470,6 @@ public class MainWindow extends JFrame {
         }
     }
 
-
     private void displayErrors(List<ErrorLSSL> errors, JTextArea outputArea, String noErrorsMessage) {
         if (errors.isEmpty()) {
             outputArea.setText(noErrorsMessage);
@@ -510,13 +482,11 @@ public class MainWindow extends JFrame {
         }
     }
 
-    /**
-     * Exporta el reporte de análisis a HTML
-     */
+    //Exportar Reporte
     private void exportAnalysisReport(ActionEvent e) {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Guardar reporte de análisis");
-        chooser.setSelectedFile(new File("reporte_titan.html"));
+        chooser.setSelectedFile(new File("Reporte.html"));
 
         int result = chooser.showSaveDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
@@ -525,9 +495,7 @@ public class MainWindow extends JFrame {
         }
     }
 
-    /**
-     * Genera el reporte HTML
-     */
+    //Generar Reporte
     private void generateHTMLReport(File file) {
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(buildHTMLReport());
@@ -537,9 +505,7 @@ public class MainWindow extends JFrame {
         }
     }
 
-    /**
-     * contenido del reporte HTML
-     */
+    //Contenido
     private String buildHTMLReport() {
         StringBuilder html = new StringBuilder();
         html.append("<!DOCTYPE html>\n");
@@ -562,8 +528,7 @@ public class MainWindow extends JFrame {
 
         html.append("<div class='container'>");
         html.append("<div class='header'>");
-        html.append("<h1>🚀 Reporte del Compilador TITAN</h1>");
-        html.append("<p class='date'><strong>Fecha de generación:</strong> ").append(new java.util.Date()).append("</p>");
+        html.append("<h1>Reporte Compilador TITAN</h1>");
         html.append("</div>");
 
         html.append(createHTMLSection("📝 Código Fuente", inputArea.getText()));
@@ -588,25 +553,16 @@ public class MainWindow extends JFrame {
                 "<pre>" + escapedContent + "</pre></div>";
     }
 
-
     private void showInfoMessage(String message) {
         JOptionPane.showMessageDialog(this, message, "Información", JOptionPane.INFORMATION_MESSAGE);
     }
-
-
-    private void showWarningMessage(String message) {
-        JOptionPane.showMessageDialog(this, message, "Advertencia", JOptionPane.WARNING_MESSAGE);
-    }
-
 
     private void showErrorMessage(String message, Exception ex) {
         String fullMessage = message + ":\n" + ex.getMessage();
         JOptionPane.showMessageDialog(this, fullMessage, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
-    /**
-     * Clase interna para almacenar los resultados del análisis
-     */
+    //Clase interna para almacenar Analisis
     private static class AnalysisResults {
         String detectedLanguage;
         List<Token> tokens = new ArrayList<>();

@@ -23,7 +23,7 @@ public class Parser {
                 errores.add(new ErrorLSSL(2,
                         "Error de sintaxis cerca de '" + t.getLexeme() + "'",
                         t.getLine(), t.getColumn()));
-                index++; // evitar bucle infinito
+                index++;
             }
         }
     }

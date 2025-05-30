@@ -15,7 +15,7 @@ public class Lexer {
     // Expresiones regulares por tipo de token
     private final String[] patterns = {
             "(?<NUMERO>\\b\\d+\\b)",
-            "(?<REAL>\\b\\d+\\.\\d+\\b)",
+            "(?<REAL>\\b\\d+\\.\\d+\\b|\\b\\d+\\.(?!\\d))",
             "(?<ID>\\b[a-zA-Z_][a-zA-Z0-9_]*\\b)",
             "(?<SUMA>\\+)",
             "(?<RESTA>-)",
@@ -38,17 +38,33 @@ public class Lexer {
 
         String[] lineas = codigoFuente.split("\n");
         for (int i = 0; i < lineas.length; i++) {
-            Matcher matcher = pattern.matcher(lineas[i]);
+            String linea = lineas[i];
+            Matcher matcher = pattern.matcher(linea);
+            int posicion = 0;
 
-            while (matcher.find()) {
-                String lexema = matcher.group();
-                String tipo = getTipoToken(matcher);
+            while (posicion < linea.length()) {
+                if (Character.isWhitespace(linea.charAt(posicion))) {
+                    posicion++;
+                    continue;
+                }
 
-                if (tipo != null) {
-                    String clasificacion = clasificar(lexema, tipo);
-                    tokens.add(new Token(lexema, tipo, i + 1, matcher.start() + 1, clasificacion));
+                matcher.region(posicion, linea.length());
+                if (matcher.find() && matcher.start() == posicion) {
+
+                    String lexema = matcher.group();
+                    String tipo = getTipoToken(matcher);
+
+                    if (tipo != null) {
+                        String clasificacion = clasificar(lexema, tipo);
+                        tokens.add(new Token(lexema, tipo, i + 1, posicion + 1, clasificacion));
+                    } else {
+                        errors.add(new ErrorLSSL(1, "Token no reconocido: " + lexema, i + 1, posicion + 1));
+                    }
+                    posicion = matcher.end();
                 } else {
-                    errors.add(new ErrorLSSL(1, "Token no reconocido: " + lexema, i + 1, matcher.start() + 1));
+
+                    errors.add(new ErrorLSSL(1, "Carácter inválido: '" + linea.charAt(posicion) + "'", i + 1, posicion + 1));
+                    posicion++;
                 }
             }
         }

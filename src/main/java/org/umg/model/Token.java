@@ -2,11 +2,11 @@ package org.umg.model;
 
 public class Token {
 
-    private final String lexeme;         // Valor textual del token (ej: "x", "5", "+")
-    private final String type;           // Tipo léxico (ej: ID, NUMERO, SUMA)
-    private final int line;              // Línea del código fuente
-    private final int column;            // Columna en la línea
-    private final String clasificacion;  // Clasificación semántica (ej: Identificador, Operador)
+    private final String lexeme;
+    private final String type;
+    private final int line;
+    private final int column;
+    private final String clasificacion;
 
     public Token(String lexeme, String type, int line, int column, String clasificacion) {
         this.lexeme = lexeme;
@@ -30,10 +30,6 @@ public class Token {
 
     public int getColumn() {
         return column;
-    }
-
-    public String getClasificacion() {
-        return clasificacion;
     }
 
     @Override
