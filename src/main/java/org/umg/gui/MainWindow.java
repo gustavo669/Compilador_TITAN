@@ -19,10 +19,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class MainWindow extends JFrame {
 
     private JTextArea inputArea;
+    private JTextArea outputTablaSimbolos;
     private JTextArea outputTokens;
     private JTextArea outputErrorsLex;
     private JTextArea outputErrorsSint;
@@ -47,6 +49,7 @@ public class MainWindow extends JFrame {
 
     private void initializeComponents() {
         inputArea = createTextArea(true, "");
+        outputTablaSimbolos = createTextArea(false, "");
         outputTokens = createTextArea(false, "");
         outputErrorsLex = createTextArea(false, "");
         outputErrorsSint = createTextArea(false, "");
@@ -63,6 +66,7 @@ public class MainWindow extends JFrame {
         btnLimpiar = createButton("Limpiar Todo", "Limpia todas las áreas de texto");
 
         analysisResults = new AnalysisResults();
+
     }
 
     //Configuración estándar
@@ -72,7 +76,7 @@ public class MainWindow extends JFrame {
         area.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
-        area.setBackground(editable ? new Color(191, 239, 243) : Color.white);
+        area.setBackground(editable ? new Color(214, 247, 250) : Color.white);
         area.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         area.setForeground(new Color(33, 37, 41));
         if (!placeholder.isEmpty()) {
@@ -142,22 +146,39 @@ public class MainWindow extends JFrame {
 
     //Panel de codigo fuente
     private JPanel createSourceCodePanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createTitledBorder(
+        JPanel panel = new JPanel(new GridLayout(1, 2, 10, 10));
+        panel.setPreferredSize(new Dimension(0, 250));
+        panel.setBackground(Color.WHITE);
+
+        // Panel del código fuente
+        JPanel panelCodigo = new JPanel(new BorderLayout());
+        panelCodigo.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(108, 117, 125), 1),
-                "Código Fuente",
-                0, 0,
+                "Código Fuente", 0, 0,
                 new Font("Segoe UI", Font.BOLD, 16),
                 new Color(52, 58, 64)
         ));
-        panel.setPreferredSize(new Dimension(0, 220));
-        panel.setBackground(Color.WHITE);
+        JScrollPane scrollCodigo = new JScrollPane(inputArea);
+        scrollCodigo.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollCodigo.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        panelCodigo.add(scrollCodigo, BorderLayout.CENTER);
 
-        JScrollPane scrollPane = new JScrollPane(inputArea);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        panel.add(scrollPane, BorderLayout.CENTER);
+        // Panel de la tabla de símbolos
+        JPanel panelSimbolos = new JPanel(new BorderLayout());
+        panelSimbolos.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(108, 117, 125), 1),
+                "Tabla de Símbolos", 0, 0,
+                new Font("Segoe UI", Font.BOLD, 16),
+                new Color(52, 58, 64)
+        ));
+
+        JScrollPane scrollSimbolos = new JScrollPane(outputTablaSimbolos);
+        scrollSimbolos.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollSimbolos.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        panelSimbolos.add(scrollSimbolos, BorderLayout.CENTER);
+
+        panel.add(panelCodigo);
+        panel.add(panelSimbolos);
 
         return panel;
     }
@@ -166,12 +187,12 @@ public class MainWindow extends JFrame {
     private JPanel createResultsPanel() {
         JPanel panel = new JPanel(new GridLayout(3, 3, 10, 10));
         panel.setBackground(new Color(248, 249, 250));
-
         String[] titles = {
                 "Tokens Reconocidos", "Errores Léxicos", "Errores Sintácticos",
                 "Errores Semánticos", "Código Intermedio", "Código Optimizado",
                 "Código Objeto", "Lenguaje Detectado", "Simulación SQL"
         };
+
         JTextArea[] areas = {
                 outputTokens, outputErrorsLex, outputErrorsSint,
                 outputErrorsSem, outputIntermedio, outputOptimizado,
@@ -181,7 +202,6 @@ public class MainWindow extends JFrame {
         for (int i = 0; i < titles.length; i++) {
             panel.add(createScrollablePanel(titles[i], areas[i]));
         }
-
         return panel;
     }
 
@@ -280,6 +300,7 @@ public class MainWindow extends JFrame {
 
     private void clearOutputAreas() {
         outputTokens.setText("");
+        outputTablaSimbolos.setText("");
         outputErrorsLex.setText("");
         outputErrorsSint.setText("");
         outputErrorsSem.setText("");
@@ -426,8 +447,9 @@ public class MainWindow extends JFrame {
     }
 
     private void performSemanticAnalysis() {
-        if (analysisResults.tokens.isEmpty()) {
+        if (analysisResults.tokens == null || analysisResults.tokens.isEmpty()) {
             outputErrorsSem.setText("No hay código fuente para analizar semánticamente.");
+            outputTablaSimbolos.setText("");
             return;
         }
 
@@ -436,6 +458,16 @@ public class MainWindow extends JFrame {
         analysisResults.semanticErrors = semantic.getErrores();
 
         displayErrors(analysisResults.semanticErrors, outputErrorsSem, "Sin errores semánticos.");
+
+        outputTablaSimbolos.setText("");
+        if (semantic.getTablaSimbolos().isEmpty()) {
+            outputTablaSimbolos.setText("No se detectaron símbolos.");
+        } else {
+            semantic.getTablaSimbolos().entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .forEach(entry -> outputTablaSimbolos.append(
+                            "Variable: " + entry.getKey() + " | Tipo: " + entry.getValue() + "\n"));
+        }
     }
 
     private void handleHTMLExecution(String sourceCode) {
@@ -531,16 +563,17 @@ public class MainWindow extends JFrame {
         html.append("<h1>Reporte Compilador TITAN</h1>");
         html.append("</div>");
 
-        html.append(createHTMLSection("📝 Código Fuente", inputArea.getText()));
-        html.append(createHTMLSection("🌐 Lenguaje Detectado", outputLenguaje.getText()));
-        html.append(createHTMLSection("🔤 Tokens Reconocidos", outputTokens.getText()));
-        html.append(createHTMLSection("❌ Errores Léxicos", outputErrorsLex.getText()));
-        html.append(createHTMLSection("⚠️ Errores Sintácticos", outputErrorsSint.getText()));
-        html.append(createHTMLSection("🔍 Errores Semánticos", outputErrorsSem.getText()));
-        html.append(createHTMLSection("⚙️ Código Intermedio", outputIntermedio.getText()));
-        html.append(createHTMLSection("✨ Código Optimizado", outputOptimizado.getText()));
-        html.append(createHTMLSection("📦 Código Objeto", outputObjeto.getText()));
-        html.append(createHTMLSection("🗄️ Simulación SQL", outputSQL.getText()));
+        html.append(createHTMLSection("Código Fuente", inputArea.getText()));
+        html.append(createHTMLSection("Lenguaje Detectado", outputLenguaje.getText()));
+        html.append(createHTMLSection("Tokens Reconocidos", outputTokens.getText()));
+        html.append(createHTMLSection("Errores Léxicos", outputErrorsLex.getText()));
+        html.append(createHTMLSection("Errores Sintácticos", outputErrorsSint.getText()));
+        html.append(createHTMLSection("Errores Semánticos", outputErrorsSem.getText()));
+        html.append(createHTMLSection("Tabla de Simbolos", outputTablaSimbolos.getText()));
+        html.append(createHTMLSection("Código Intermedio", outputIntermedio.getText()));
+        html.append(createHTMLSection("Código Optimizado", outputOptimizado.getText()));
+        html.append(createHTMLSection("Código Objeto", outputObjeto.getText()));
+        html.append(createHTMLSection("Simulación SQL", outputSQL.getText()));
 
         html.append("</div>");
         html.append("</body></html>");
